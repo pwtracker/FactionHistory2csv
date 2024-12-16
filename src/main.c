@@ -7,7 +7,7 @@
 #include "FactionHistory.h"
 #include "decoder.h"
 
-void Process(FILE* src, FILE* dst, const FactionHistoryHeader_t* header);
+void Process(FILE* src, FILE* dst);
 
 int main(int argc, char* argv[])
 {
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
         {
             FactionHistoryHeader_t header;
 
-            if (fread(&header, sizeof(header), 1, src) == 1 && IsFactionHistoryValid(&header))
+            if (fread(&header, sizeof(header), 1, src) == 1 && IsValidFactionHistoryHeader(&header))
             {
                 char dst_path[256];
                 sprintf_s(dst_path, sizeof(dst_path), "%s.csv", argv[1]);
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
                 if (dst != NULL)
                 {
-                    Process(src, dst, &header);
+                    Process(src, dst);
 
                     fclose(dst);
                 }
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void Process(FILE* src, FILE* dst, const FactionHistoryHeader_t* header)
+void Process(FILE* src, FILE* dst)
 {
     fprintf(dst, "#\tВРЕМЯ\tИГРОК\tДЕЙСТВИЕ\tПАРАМЕТР 1\tПАРАМЕТР 2\t ПАРАМЕТР 3\tРАСШИФРОВКА\n");
 

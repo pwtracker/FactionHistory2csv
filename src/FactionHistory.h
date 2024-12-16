@@ -19,7 +19,7 @@ typedef struct
     int params[3];
 } FactionHistoryRecord_t;
 
-inline bool IsFactionHistoryValid(const FactionHistoryHeader_t *header)
+inline bool IsValidFactionHistoryHeader(const FactionHistoryHeader_t *header)
 {
     return header->from_id <= header->to_id || (header->from_id == -1 && header->to_id == -2);
 }
