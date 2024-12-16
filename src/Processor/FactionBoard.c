@@ -1,10 +1,63 @@
-#include "decoder.h"
+#include "Processor.h"
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
-void DecodeFactionRole(char *buffer, size_t size, int role);
+/**
+ * Custom declarations
+ */
 
-void Decode(
+void _Decode(
+    char *action,
+    size_t action_size,
+    char *description,
+    size_t description_size,
+    const FactionHistoryRecord_t *record
+);
+
+void _DecodeFactionRole(char *buffer, size_t size, int role);
+
+/**
+ * Processor implementations
+ */
+
+void Processor_WriteHeader(FILE *dst)
+{
+    fprintf(dst, "ID\tДАТА\tИГРОК\tДЕЙСТВИЕ\tП0\tП1\tП2\tОПИСАНИЕ\n");
+}
+
+void Processor_WriteRow(FILE *dst, const FactionHistoryRecord_t *record)
+{
+    struct tm* timestamp = _localtime32(&record->timestamp);
+
+    if (timestamp == NULL)
+    {
+        return;
+    }
+
+    char datetime[32];
+    strftime(datetime, sizeof(datetime), DT_FORMAT, timestamp);
+
+    char action[128], description[256];
+    _Decode(action, sizeof(action), description, sizeof(description), record);
+
+    fprintf(dst, "%i\t%s\t%i\t%s\t%i\t%i\t%i\t%s\n",
+        record->id,
+        datetime,
+        record->who,
+        action,
+        record->params[0],
+        record->params[1],
+        record->params[2],
+        description
+    );
+}
+
+/**
+ * Custom implementations
+ */
+
+void _Decode(
     char *action,
     size_t action_size,
     char *description,
@@ -51,7 +104,9 @@ void Decode(
 
         case 6:
             strcpy_s(action, action_size, "Вступает в гильдию");
-            sprintf_s(description, description_size, "Игрок {role_id:%i} вступает в гильдию.", record->who);
+            sprintf_s(description, description_size, "Игрок {role_id:%i} вступает в гильдию.",
+                record->who
+            );
             break;
 
         case 7:
@@ -63,12 +118,14 @@ void Decode(
 
         case 8:
             strcpy_s(action, action_size, "Покидает гильдию");
-            sprintf_s(description, description_size, "Игрок {role_id:%i} покидает гильдию.", record->who);
+            sprintf_s(description, description_size, "Игрок {role_id:%i} покидает гильдию.",
+                record->who
+            );
             break;
 
         case 9:
             char role[64];
-            DecodeFactionRole(role, sizeof(role), record->params[1]);
+            _DecodeFactionRole(role, sizeof(role), record->params[1]);
 
             strcpy_s(action, action_size, "Изменяет должность");
             sprintf_s(description, description_size, "Игрок {role_id:%i} %s игрока {role_id:%i} до должности %s.",
@@ -92,7 +149,7 @@ void Decode(
     }
 }
 
-void DecodeFactionRole(char *buffer, size_t size, int role)
+void _DecodeFactionRole(char *buffer, size_t size, int role)
 {
     buffer[0] = 0;
 

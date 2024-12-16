@@ -18,19 +18,24 @@ inc += include_directories(
 
 manifest = {
     'DeivdeHistory2csv': {
-        'decoder': 'DeivdeHistory'
+        'processor': 'DeivdeHistory'
     },
     'FactionBoard2csv': {
-        'decoder': 'FactionBoard'
+        'processor': 'FactionBoard'
     },
     'StorageHistory2csv': {
-        'decoder': 'StorageHistory'
+        'processor': 'StorageHistory'
+    },
+    'RawHistory2csv': {
+        'processor': 'RawHistory'
     }
 }
 
 add_project_arguments(
     '-DPROJECT_VERSION="@0@"'.format(meson.project_version()),
     '-DPROJECT_CREDITS="Perfect World Tracker (github.com/pwtracker)"',
+    '-D_CRT_SECURE_NO_DEPRECATE',
+    '-D_CRT_SECURE_NO_WARNINGS',
     language : 'c'
 )
 
@@ -39,7 +44,7 @@ foreach target_name, target_options : manifest
     target_inc = inc
 
     target_src += files(
-        'src' / 'Decoder' / '@0@.c'.format(target_options['decoder'])
+        'src' / 'Processor' / '@0@.c'.format(target_options['processor'])
     )
 
     executable(target_name, target_src,

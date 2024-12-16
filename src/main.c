@@ -1,11 +1,9 @@
-#define _CRT_SECURE_NO_DEPRECATE
 #define error(...) sprintf_s(error_msg, sizeof(error_msg), __VA_ARGS__)
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "FactionHistory.h"
-#include "decoder.h"
+#include "Processor.h"
 
 void Process(FILE* src, FILE* dst);
 
@@ -70,34 +68,14 @@ int main(int argc, char* argv[])
 
 void Process(FILE* src, FILE* dst)
 {
-    fprintf(dst, "#\tВРЕМЯ\tИГРОК\tДЕЙСТВИЕ\tПАРАМЕТР 1\tПАРАМЕТР 2\t ПАРАМЕТР 3\tРАСШИФРОВКА\n");
+    Processor_WriteHeader(dst);
 
     FactionHistoryRecord_t record;
-    struct tm* timestamp;
     int prev_id = -1;
 
-    while (
-        fread(&record, sizeof(record), 1, src) == 1
-        && record.id >= prev_id
-        && (timestamp = _localtime32(&record.timestamp)) != NULL
-    )
+    while (fread(&record, sizeof(record), 1, src) == 1 && record.id >= prev_id)
     {
-        char time[32];
-        strftime(time, sizeof(time), "%d.%m.%Y %T", timestamp);
-
-        char action[128], description[256];
-        Decode(action, sizeof(action), description, sizeof(description), &record);
-
-        fprintf(dst, "%i\t%s\t%i\t%s\t%i\t%i\t%i\t%s\n",
-            record.id,
-            time,
-            record.who,
-            action,
-            record.params[0],
-            record.params[1],
-            record.params[2],
-            description
-        );
+        Processor_WriteRow(dst, &record);
 
         prev_id = record.id;
     }
