@@ -39,7 +39,7 @@ foreach target_name, target_options : manifest
     target_inc = inc
 
     target_src += files(
-        'src' / 'decoder' / '@0@.c'.format(target_options['decoder'])
+        'src' / 'Decoder' / '@0@.c'.format(target_options['decoder'])
     )
 
     executable(target_name, target_src,
