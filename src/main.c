@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
         {
             FactionHistoryHeader_t header;
 
-            if (fread(&header, sizeof(header), 1, src) == 1 && IsValidFactionHistoryHeader(&header))
+            if (fread(&header, sizeof(header), 1, src) == 1 && IsValidFactionHistorySign(&header))
             {
                 char dst_path[256];
                 sprintf_s(dst_path, sizeof(dst_path), "%s.csv", argv[1]);
