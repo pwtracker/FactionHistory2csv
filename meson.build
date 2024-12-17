@@ -1,5 +1,5 @@
 project('FactionHistory2csv', 'c',
-    version: '1.0.0',
+    version: '1.1.0',
     meson_version: '>=1.5.0',
     license: 'GPLv3',
     license_files: './LICENSE'
